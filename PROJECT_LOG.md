@@ -125,7 +125,9 @@ Below are the 4 main tables:
 | `tv_umpire` | VARCHAR(50) | TV Umpire ID |
 | `umpire_1` | VARCHAR(50) | On-field Umpire 1 ID |
 | `umpire_2` | VARCHAR(50) | On-field Umpire 2 ID |
-| `outcome` | VARCHAR(50) | Winner or result (e.g. draw/tie) |
+| `winner` | VARCHAR(50) | Winner (Name of winning team) |
+| `win_margin` | VARCHAR(50) | Margin of victory by the winner (e.g. by 5 wickets or by 2 runs) |
+| `outcome` | VARCHAR(50) | Was a winner decided or no (win, draw, tie, etc.) |
 | `potm` | VARCHAR(100) | Player of the Match |
 | `team_type` | VARCHAR(20) | international/club |
 | `team_1` | VARCHAR(100) | Team 1 |
