@@ -148,11 +148,11 @@ Below are the 4 main tables:
 | `non_striker` | VARCHAR(100) | Name or ID of the non-striker |
 | `runs_batter` | INT | Runs scored off the bat |
 | `runs_extras` | INT | Extra runs awarded (wides, noballs, legbyes, etc.) |
-| `runs_total` | INT | Total runs on this ball (`runs_batter` + `runs_extras`) |
 | `extra_type` | VARCHAR(20) | Nullable (wides, noballs, byes, legbyes, penalty) |
 | `wicket_fell` | BOOLEAN | True/False |
 | `player_out` | VARCHAR(100) | Nullable (Name of the player dismissed) |
 | `dismissal_kind` | VARCHAR(50) | Nullable (caught, bowled, run out, lbw, etc.) |
+| `fielder` | VARCHAR(50) | Nullable Name of fielder that completed the catch or run out |
 
 #### Table 3: players
 
@@ -169,4 +169,8 @@ Below are the 4 main tables:
 | `player_id` | VARCHAR(50) | Composite Primary Key / Foreign Key referencing `players(player_id)` |
 | `team_name` | VARCHAR(100) | The team the player played for in this specific match |
 
-Then I wrote a script that extracts this data into data frames:
+Then I wrote a script that extracts this data in the format I want it.
+
+For now I have 4 lists with all the data, I will work transferring this data into SQL next.
+
+*log to be continued...*
