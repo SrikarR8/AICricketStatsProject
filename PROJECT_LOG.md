@@ -92,8 +92,81 @@ So we are able to index by match and player to obtain their ball-by-ball stats!
 
 Now all that's left is to export the data into SQL!
 
-## 5/21/26
+## 06/04/26 (Continued)
 
 ### Creating the database
 
-*(Entry to be continued)*
+Today's focus was creating the database and finalizing its functionalities. In order to make querying efficient, I had to first think of the use-cases for my DB and app as a whole.
+
+I looked at various cricket analysis visualizations—such as worm graphs, partnership tables, Manhattan charts (runs per over), wagon wheels (scoring areas), and pitch maps (bowling lengths and lines). Analyzing how these graphics are generated made me realize that the two fundamental stats I need to search and aggregate by: **deliveries** and **players**.
+
+Therefore, the core of the database relies on two main structures:
+
+1. A ball-by-ball table: This provides the highest level of granularity. By storing data at the delivery level, the backend can easily aggregate the data upward by over, inning, or match to get higher-level stats on the fly.
+
+2. A many-to-many player-to-matches table: This makes it highly efficient to query individual player statistics across specific timeframes or formats.
+
+There are other things a user could query by such as venues, tournaments, etc. and adding specific tables for these would not be a bad idea, however I wanted to focus on the MVP for now. 
+
+Below are the 4 main tables:
+
+#### Table 1: matches (Metadata)
+
+| **Column Name** | **SQL Type** | **Desc.** |
+| :--- | :--- | :--- |
+| `match_id` | VARCHAR(50) | Primary Key |
+| `start_date` | DATE | Match start date |
+| `end_date` | DATE | Match end date |
+| `event_name` | VARCHAR(100) | Tournament/Series name |
+| `event_match_number` | INT | Match number in series |
+| `gender` | VARCHAR(10) | male/female |
+| `format` | VARCHAR(10) | Test, ODI, T20, etc. |
+| `match_ref` | VARCHAR(50) | Match Referee ID |
+| `tv_umpire` | VARCHAR(50) | TV Umpire ID |
+| `umpire_1` | VARCHAR(50) | On-field Umpire 1 ID |
+| `umpire_2` | VARCHAR(50) | On-field Umpire 2 ID |
+| `outcome` | VARCHAR(50) | Winner or result (e.g. draw/tie) |
+| `potm` | VARCHAR(100) | Player of the Match |
+| `team_type` | VARCHAR(20) | international/club |
+| `team_1` | VARCHAR(100) | Team 1 |
+| `team_2` | VARCHAR(100) | Team 2 |
+| `toss_winner` | VARCHAR(100) | Toss winner |
+| `toss_decision` | VARCHAR(10) | bat/field |
+| `venue` | VARCHAR(250) | Stadium name |
+| `city` | VARCHAR(100) | City |
+
+#### Table 2: deliveries (Ball-by-Ball)
+
+| **Column Name** | **SQL Type** | **Desc.** |
+| :--- | :--- | :--- |
+| `match_id` | VARCHAR(50) | Foreign Key referencing `matches(match_id)` |
+| `innings_no` | INT | Innings sequence (1, 2, 3, or 4) |
+| `over_no` | INT | The over number (0, 1, 2...) |
+| `ball_no` | INT | The ball number within the over (1, 2, 3...) |
+| `batter` | VARCHAR(100) | Name or ID of the batter |
+| `bowler` | VARCHAR(100) | Name or ID of the bowler |
+| `non_striker` | VARCHAR(100) | Name or ID of the non-striker |
+| `runs_batter` | INT | Runs scored off the bat |
+| `runs_extras` | INT | Extra runs awarded (wides, noballs, legbyes, etc.) |
+| `runs_total` | INT | Total runs on this ball (`runs_batter` + `runs_extras`) |
+| `extra_type` | VARCHAR(20) | Nullable (wides, noballs, byes, legbyes, penalty) |
+| `wicket_fell` | BOOLEAN | True/False |
+| `player_out` | VARCHAR(100) | Nullable (Name of the player dismissed) |
+| `dismissal_kind` | VARCHAR(50) | Nullable (caught, bowled, run out, lbw, etc.) |
+
+#### Table 3: players
+
+| **Column Name** | **SQL Type** | **Desc.** |
+| :--- | :--- | :--- |
+| `player_id` | VARCHAR(50) | Primary Key (corresponds to the unique registry ID in the JSON) |
+| `player_name` | VARCHAR(150) | The full name of the player |
+
+#### Table 4: match_to_players 
+
+| **Column Name** | **SQL Type** | **Desc.** |
+| :--- | :--- | :--- |
+| `match_id` | VARCHAR(50) | Composite Primary Key / Foreign Key referencing `matches(match_id)` |
+| `player_id` | VARCHAR(50) | Composite Primary Key / Foreign Key referencing `players(player_id)` |
+| `team_name` | VARCHAR(100) | The team the player played for in this specific match |
+
+Then I wrote a script that extracts this data into data frames:
