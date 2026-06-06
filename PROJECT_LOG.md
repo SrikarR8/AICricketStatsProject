@@ -1,6 +1,6 @@
 # Project Log & Notes
 
-## 5/11/26
+## 05/11/26
 
 ### Project Idea
 This project is a full-stack cricket analytics platform that uses historical match data with real-time scoring. It provides a web-based dashboard for player and team based statistics while utilizing an AI-driven analytical agent. The primary objective is to demonstrate a "grounded" AI architecture where a LLM performs deterministic analysis by querying a private relational database through tool-calling, rather than relying on probabilistic internal knowledge. This approach eliminates factual hallucinations and provides users with precise, up-to-date statistical insights. Overall, the app will provide basic stat website functionality (akin to CricBuzz, ESPN) and have this AI layer added on top of it.
@@ -25,7 +25,7 @@ This project is a full-stack cricket analytics platform that uses historical mat
 
 ---
 
-## 5/13/26
+## 05/13/26
 
 ### Watched Tutorials
 * **Git:** [Tutorial Link](https://www.youtube.com/watch?v=mJ-qvsxPHpY)
@@ -49,7 +49,7 @@ This project is a full-stack cricket analytics platform that uses historical mat
 
 ---
 
-## 5/20/26
+## 05/20/26
 
 ### Plan for Data Transfer from Cricsheet to PostgreSQL
 
@@ -92,7 +92,7 @@ So we are able to index by match and player to obtain their ball-by-ball stats!
 
 Now all that's left is to export the data into SQL!
 
-## 06/04/26 (Continued)
+## 06/04/26 
 
 ### Creating the database
 
@@ -174,5 +174,23 @@ Below are the 4 main tables:
 Then I wrote a script that extracts this data in the format I want it.
 
 For now I have 4 lists with all the data, I will work transferring this data into SQL next.
+
+## 06/05/26
+
+Today was focused entirely on sifting through the Cricsheet JSON files and finalizing the data pipeline to SQL. I had to pivot my approach midway through, but I successfully got all the data exported.
+
+Here is a breakdown of how today went and my findings:
+
+Today, I first learned how to handle virtual downloads, allowing the script to pull the zip archives directly from Cricsheet into memory instead of saving them to my local drive. This was done via the zipfile library.
+
+I originally built the parsing logic using Pandas DataFrames for each table. While it functioned correctly, the processing time was way too high. I scrapped the DataFrames and rewrote the logic using native Python lists of dictionaries, which drastically improved the execution speed. I learned in class about the efficiency of hash maps and this project displays that efficiency perfectly!
+
+Last, I mapped out the necessary JSON data and used the psycopg2 library to batch-insert those dictionary lists directly into the local database.
+
+This was my first time working with PostgreSQL and psycopg2. Figuring out how to bridge the gap between a Python script and a live database was a valuable learning experience. Next I need to figure out how to update my db automatically (every week or month or so.)
+
+I ended up with **11 million** (11,207,265) deliveries of data in the end! 
+
+Code Attachment: View code [here](/exportDataToSQL.py)
 
 *log to be continued...*
