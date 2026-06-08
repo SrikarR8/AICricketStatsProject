@@ -1,6 +1,6 @@
 # Project Log & Notes
 
-## 05/11/26
+## 05/19/26
 
 ### Intent:
 
@@ -18,9 +18,6 @@ Essentially, I want to make this a full-stack web app similar to that of ESPN Cr
 * **Data Sources:** * Cricsheet (for in-depth historical data)
   * CricAPI (for live data)
   * *To-do: Look into other live APIs if possible.*
----
-
-## 05/13/26 to 05/17/26: Watched Tutorials on my preferred technologies
 ---
 
 ## 05/20/26
