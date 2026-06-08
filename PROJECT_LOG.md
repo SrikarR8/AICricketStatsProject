@@ -2,8 +2,13 @@
 
 ## 05/11/26
 
-### Project Idea
-This project is a full-stack cricket analytics platform that uses historical match data with real-time scoring. It provides a web-based dashboard for player and team based statistics while utilizing an AI-driven analytical agent. The primary objective is to demonstrate a "grounded" AI architecture where a LLM performs deterministic analysis by querying a private relational database through tool-calling, rather than relying on probabilistic internal knowledge. This approach eliminates factual hallucinations and provides users with precise, up-to-date statistical insights. Overall, the app will provide basic stat website functionality (akin to CricBuzz, ESPN) and have this AI layer added on top of it.
+### Intent:
+
+Imagine you want to graph the players with the highest strike rate in the IPL this season. Normally, you would have to search multiple sites, find each player's season totals, manually filter out the extra data, and copy those numbers into a spreadsheet just to plot them. 
+
+With this application, you simply ask the question in plain English. An AI agent instantly identifies what you want, pulls just the clean, pre-calculated numbers directly from the database, and renders the exact chart you need in a fraction of a second.
+
+Essentially, I want to make this a full-stack web app similar to that of ESPN CricInfo and CricBuzz with an AI layer attached on top. The AI will query my own database (which I hope to source from CricSheet) in order to reduce context windows and avoid "hallucinations" about data. I hope to enable complex analysis tools like worm graphs, partnerships tables and much more!
 
 ### Technologies Needed
 * **Front End:** ReactJS (via ViteJS), TailwindCSS
@@ -13,40 +18,9 @@ This project is a full-stack cricket analytics platform that uses historical mat
 * **Data Sources:** * Cricsheet (for in-depth historical data)
   * CricAPI (for live data)
   * *To-do: Look into other live APIs if possible.*
-
-### First Steps & Learning Resources
-* **FastAPI:** [Tutorial Link](https://www.youtube.com/watch?v=tLKKmouUams)
-* **Git & Github:** [Tutorial Link](https://www.youtube.com/watch?v=mJ-qvsxPHpY)
-* **Docker & Docker Compose:** [Tutorial Link](https://www.youtube.com/watch?v=3c-iBn73dDE)
-* **AWS Concepts:** * [Video 1](https://www.youtube.com/watch?v=AYAh6YDXuho)
-  * [Video 2](https://youtu.be/3hLmDS179YE?si=GdKHPgpsWVDZUszr)
-* **Terraform & CICD via git:** [HashiCorp Tutorial](https://developer.hashicorp.com/terraform/tutorials/automation/github-actions)
-* *Next Step: Plan out architecture.*
-
 ---
 
-## 05/13/26
-
-### Watched Tutorials
-* **Git:** [Tutorial Link](https://www.youtube.com/watch?v=mJ-qvsxPHpY)
-
-### Git Command Notes
-| Command | Description |
-| :--- | :--- |
-| `git init` | Initialize project to use git |
-| `git add .` | Add all changes to be saved |
-| `git add <filename>` | Add single file to be saved |
-| `git commit -m "message"` | Save changes with a message |
-| `git push origin master` | Push changes to github master branch |
-| `git push origin new-branch` | Push changes to github new-branch |
-| `git pull origin master` | Pull changes from github master |
-| `git checkout -b new-branch` | Create a new branch |
-| `git status` | Check status of changes |
-| `git log` | See all previous saved changes |
-| `git checkout <commit hash>` | Travel back to old commit |
-
-* **Docker:** [Tutorial Link](https://www.youtube.com/watch?v=pg19Z8LL06w)
-
+## 05/13/26 to 05/17/26: Watched Tutorials on my preferred technologies
 ---
 
 ## 05/20/26
@@ -71,11 +45,11 @@ First I wanted to visualize the cricsheet data and understand its format.
           * Wickets (optional): Which has data for kind of wicket, bowler and fielder (if applicable).
 
 
- After understanding the data, I wanted to figure out how I should store this data in SQL and do so efficiently. This step is critical if I want my website to be responsive later on. Before I can worry about the ball-by-ball stats, I need to create 2 master tables: one that stores basic player info (player name, date of birth, handedness, etc.) and another which stores match metadata (essentially the info object from the match JSON from cricsheet). 
- 
+ After understanding the data, I wanted to figure out how I should store this data in SQL and do so efficiently. Before I can worry about the ball-by-ball stats, I need to create 2 master tables: one that stores basic player info (player name, date of birth, handedness, etc.) and another which stores match metadata (essentially the info object from the match JSON from cricsheet). 
+
  The problem here is that 22 players participate in one match. & A single player can play any n number of games. Causing a many to many relationship. 
- 
- To solve this, I plan to add a seperate table which has one row for every match that every player has played:
+
+ A direct many-to-many relationship cannot be efficiently stored using standard foreign keys because a single table column can only hold one value per row. Attempting to force multiple player IDs into a single match row, or vice versa, violates database normalization rules and creates redundancy. To solve this, a separate junction table is required to break the link into two, one-to-many relationships:
  
 | **MatchID** | **PlayerID** | **Country** |
 | :--- | :--- | :--- |
@@ -84,13 +58,11 @@ First I wanted to visualize the cricsheet data and understand its format.
 
 ... _for all 11 players for 2 teams (so 22 rows per match in total)_
 
-This allows us to index by player and match which will make our analysis much more in-depth!
-
-Lastly, we need a table that actually stores the ball-by-ball stats, each delivery will be assigned to a match id so we can index.
-
-So we are able to index by match and player to obtain their ball-by-ball stats!
+Lastly, we need a table that actually stores the ball-by-ball stats, each delivery will be assigned to a match id so we can index. So we are able to index by match and player to obtain their ball-by-ball stats. Leaving us with 4 main tables.
 
 Now all that's left is to export the data into SQL!
+
+---
 
 ## 06/04/26 
 
@@ -175,6 +147,8 @@ Then I wrote a script that extracts this data in the format I want it.
 
 For now I have 4 lists with all the data, I will work transferring this data into SQL next.
 
+--- 
+
 ## 06/05/26
 
 Today was focused entirely on sifting through the Cricsheet JSON files and finalizing the data pipeline to SQL. I had to pivot my approach midway through, but I successfully got all the data exported.
@@ -193,4 +167,25 @@ I ended up with **11 million** (11,207,265) deliveries of data in the end!
 
 Code Attachment: View code [here](/exportDataToSQL.py)
 
+--- 
+
+## 06/07/26
+
+Today I wanted plan out how to build the API.
+
+Before diving headfirst into building a FastAPI backend, I took a step back to map out the core use cases of the application and figure out how the API design will directly impact performance, token efficiency, and costs for the AI integration.
+
+My original plan was actually much simpler: build a standard sports API (Phase 1) and just let the AI ingest the raw data rows to figure out the answers itself. However, after reading about API costs and token limits, I realized that passing 1000s of rows of JSON into an LLM's context window would be very expensive, inefficient and slow.
+
+I plan on adopting a Deferred Data Execution Pipeline so that the AI never actually touches the database rows. When a user asks a question, the AI acts strictly as a "pointer", reading my API schemas and returning a JSON blueprint detailing which endpoint(s) to call. My local Python script then pulls the data directly from the local database, and then straight into my graphing functions.
+
+So the API construction will be done in 2 phases:
+
+* **Phase 1 (The Core REST API):** I will build normal endpoints that return data from the database, exactly like a regular sports website. This includes generic routes like fetching a list of matches, individual match metadata, player stats, etc.
+ 
+* **Phase 2 (Specialized Analytical Endpoints):** Once the core MVP is done, I will layer on specific endpoints designed purely to serve as "tools" for the AI agent. Instead of making the AI process data, these endpoints will let PostgreSQL do the heavy lifting (using aggregates like `COUNT` and `SUM`) so the API only returns clean data shapes.
+
+
+### Next Steps
+With the data layer protected and the API routing architecture planned out, the next step is to initialize the project directory, set up `database.py` with an efficient connection pool, and start writing the core FastAPI endpoints for the sports website MVP.
 *log to be continued...*
