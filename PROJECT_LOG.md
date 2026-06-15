@@ -186,8 +186,10 @@ So the API construction will be done in 2 phases:
 ### Next Steps
 It's now time to actually create the API, at least the first part of it (the basic sports stats endpoints). Then I need to decide what the other important enpoints I need for my application and create those as well. 
 
-## 06/08/26
+## 06/15/26
 
 I plan to build the first part of the API and theorize some of the other useful endpoints for my application. I've only used API and had never built one before so I plan to spend a good chunk of the day watching FastAPI tutorials. 
+
+After understanding the basic functionalities of an API and how to implement them in FastAPI, I decided to planning out the endpoints.
 
 *log to be continued...*
